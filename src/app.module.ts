@@ -6,6 +6,7 @@ import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './module/auth/auth.module';
 import { CloudinaryModule } from './module/cloudinary/cloudinary.module';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
@@ -13,6 +14,13 @@ import { CloudinaryModule } from './module/cloudinary/cloudinary.module';
       isGlobal: true,
     }),
     MongooseModule.forRoot(process.env.MONGO_CONN),
+    ThrottlerModule.forRoot([
+      {
+        // user can  only do n request every n ttl
+        ttl: 5000, //time limit in milliseconds
+        limit: 3, //request limit
+      },
+    ]),
     BookModule,
     AuthModule,
     CloudinaryModule,

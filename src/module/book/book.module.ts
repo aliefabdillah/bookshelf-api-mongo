@@ -5,6 +5,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import forFeatureDb from '../db/for-feature.db';
 import { AuthModule } from '../auth/auth.module';
 import { CloudinaryModule } from '../cloudinary/cloudinary.module';
+import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerGuard } from '@nestjs/throttler';
 
 @Module({
   imports: [
@@ -13,6 +15,13 @@ import { CloudinaryModule } from '../cloudinary/cloudinary.module';
     CloudinaryModule,
   ],
   controllers: [BookController],
-  providers: [BookService],
+  providers: [
+    BookService,
+    // call throttelfor  book module
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class BookModule {}

@@ -24,6 +24,7 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '../auth/enums/role.enum';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { FilesInterceptor } from '@nestjs/platform-express';
+import { Throttle } from '@nestjs/throttler';
 
 @Controller('books')
 export class BookController {
@@ -36,6 +37,8 @@ export class BookController {
     return this.bookService.create(createBookDto, req.user);
   }
 
+  // @SkipThrottle() //skip throttle guard
+  @Throttle({ default: { limit: 1, ttl: 2000 } }) //custom throtter for certain endpoints
   @Get()
   @Roles(Role.Moderator, Role.Admin, Role.User) //required role
   @UseGuards(AuthGuard(), RolesGuard) //check auth and role
