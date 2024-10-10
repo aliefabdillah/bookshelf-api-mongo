@@ -10,11 +10,13 @@ import { Book } from './entities/book.entity';
 import mongoose from 'mongoose';
 import { Query } from 'express-serve-static-core';
 import { User } from '../auth/entities/user.entity';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 
 @Injectable()
 export class BookService {
   constructor(
     @InjectModel(Book.name) private bookModel: mongoose.Model<Book>,
+    private cloudinaryService: CloudinaryService, //inject cloudinaryService so  we can use in this service
   ) {}
 
   async create(createBookDto: CreateBookDto, user: User) {
@@ -95,5 +97,44 @@ export class BookService {
       throw new NotFoundException('Book not found');
     }
     return removedBook;
+  }
+
+  async uploadFile(id: string, files: Array<Express.Multer.File>) {
+    const bookData = await this.bookModel.findById(id);
+    if (!bookData) {
+      throw new NotFoundException('Book not found');
+    }
+
+    const cloudImages = await Promise.all(
+      // upload file using cloudinaryService
+      files.map(async (file) => {
+        return this.cloudinaryService
+          .uploadFiles(file)
+          .then((data) => {
+            return {
+              statusCode: 200,
+              url: data.secure_url,
+              fileName: data.original_filename,
+            };
+          })
+          .catch(() => {
+            return { statusCode: 400, url: '' as any, fileName: '' as any };
+          });
+      }),
+    );
+
+    const imageResult = cloudImages.map((image) => {
+      if (image.statusCode === 400) {
+        throw new BadRequestException('Failed To Upload Files');
+      }
+      return {
+        url: image.url,
+        fileName: image.fileName,
+      };
+    });
+
+    bookData.images = imageResult;
+    await bookData.save();
+    return bookData;
   }
 }

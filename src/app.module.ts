@@ -5,6 +5,7 @@ import { BookModule } from './module/book/book.module';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './module/auth/auth.module';
+import { CloudinaryModule } from './module/cloudinary/cloudinary.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { AuthModule } from './module/auth/auth.module';
     MongooseModule.forRoot(process.env.MONGO_CONN),
     BookModule,
     AuthModule,
+    CloudinaryModule,
   ],
   controllers: [AppController],
   providers: [AppService],
