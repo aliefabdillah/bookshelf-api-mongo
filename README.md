@@ -26,7 +26,7 @@
 
 ## Description
 
-A simple Bookshelf API that implements several features with [Nest](https://github.com/nestjs/nest) framework such as CRUD, Authentication and Authorization, File Upload, and Web Security (Helmet, CORS, Rate Limiting). The database used is MongoDB, and 3rd party cloud storage is Cloudinary.
+A simple Bookshelf API that implements several features with [Nest](https://github.com/nestjs/nest) framework such as CRUD, Authentication and Authorization, File Upload, Web Security (Helmet, CORS, Rate Limiting), and caching with Redis. The database used is MongoDB, and 3rd party cloud storage is Cloudinary.
 
 ## Project setup
 
