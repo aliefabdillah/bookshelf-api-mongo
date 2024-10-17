@@ -25,7 +25,9 @@ import { Role } from '../auth/enums/role.enum';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { Throttle } from '@nestjs/throttler';
+import { CacheInterceptor, CacheKey, CacheTTL } from '@nestjs/cache-manager';
 
+@UseInterceptors(CacheInterceptor)
 @Controller('books')
 export class BookController {
   constructor(private readonly bookService: BookService) {}
@@ -42,6 +44,8 @@ export class BookController {
   @Get()
   @Roles(Role.Moderator, Role.Admin, Role.User) //required role
   @UseGuards(AuthGuard(), RolesGuard) //check auth and role
+  @CacheKey('getBooks') //set cache key
+  @CacheTTL(0) //set cache ttl in millisecond, set '0' for no limit (decorator have bug value always infinite)
   findAllBooks(@Query() query: ExpressQuery) {
     return this.bookService.findAll(query);
   }

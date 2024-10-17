@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -11,11 +12,14 @@ import mongoose from 'mongoose';
 import { Query } from 'express-serve-static-core';
 import { User } from '../auth/entities/user.entity';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 
 @Injectable()
 export class BookService {
   constructor(
     @InjectModel(Book.name) private bookModel: mongoose.Model<Book>,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
     private cloudinaryService: CloudinaryService, //inject cloudinaryService so  we can use in this service
   ) {}
 
@@ -25,6 +29,11 @@ export class BookService {
 
     // insert to database
     const bookResult = await this.bookModel.create(data);
+
+    // if new book create delete cache data
+    if (bookResult) {
+      await this.cacheManager.del('getBooks');
+    }
     return bookResult;
   }
 
@@ -82,6 +91,8 @@ export class BookService {
     if (!newBookData) {
       throw new NotFoundException('Book not found');
     }
+    // delete cache when book updated
+    await this.cacheManager.del('getBooks');
     return newBookData;
   }
 
@@ -96,6 +107,8 @@ export class BookService {
     if (!removedBook) {
       throw new NotFoundException('Book not found');
     }
+    // delete cache when book deleted
+    await this.cacheManager.del('getBooks');
     return removedBook;
   }
 

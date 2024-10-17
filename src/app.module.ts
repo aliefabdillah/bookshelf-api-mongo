@@ -7,11 +7,26 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './module/auth/auth.module';
 import { CloudinaryModule } from './module/cloudinary/cloudinary.module';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { CacheModule } from '@nestjs/cache-manager';
+import { redisStore } from 'cache-manager-redis-store';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+    }),
+    CacheModule.register({
+      isGlobal: true,
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-expect-error
+      store: async () =>
+        await redisStore({
+          // Store-specific configuration:
+          socket: {
+            host: process.env.REDIS_HOST,
+            port: +process.env.REDIS_PORT,
+          },
+        }),
     }),
     MongooseModule.forRoot(process.env.MONGO_CONN),
     ThrottlerModule.forRoot([
