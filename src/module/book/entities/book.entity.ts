@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
-import { User } from 'src/module/auth/entities/user.entity';
+import { User } from '../../auth/entities/user.entity';
 
 export enum Category {
   ADVENTURE = 'Adventure',
