@@ -6,7 +6,7 @@ import {
   IsString,
 } from 'class-validator';
 import { Category } from '../entities/book.entity';
-import { User } from 'src/module/auth/entities/user.entity';
+import { User } from '../../auth/entities/user.entity';
 
 export class CreateBookDto {
   @IsNotEmpty()
