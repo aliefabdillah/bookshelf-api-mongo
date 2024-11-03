@@ -13,6 +13,10 @@ import { redisStore } from 'cache-manager-redis-store';
 @Module({
   imports: [
     ConfigModule.forRoot({
+      envFilePath:
+        process.env.NODE_ENV == 'test'
+          ? `.env.${process.env.NODE_ENV}.local`
+          : '.env',
       isGlobal: true,
     }),
     CacheModule.register({
