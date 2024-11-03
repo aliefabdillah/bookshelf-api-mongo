@@ -1,4 +1,9 @@
-import { HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  ConflictException,
+  HttpStatus,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './entities/user.entity';
@@ -18,18 +23,25 @@ export class AuthService {
     const { name, email, password, roles } = signUpDto;
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const user = await this.userModel.create({
-      name,
-      email,
-      password: hashedPassword,
-      roles,
-    });
+    try {
+      const user = await this.userModel.create({
+        name,
+        email,
+        password: hashedPassword,
+        roles,
+      });
 
-    return {
-      statusCode: HttpStatus.CREATED,
-      data: user,
-      message: 'User Registered successfully',
-    };
+      return {
+        statusCode: HttpStatus.CREATED,
+        data: user,
+        message: 'User Registered successfully',
+      };
+    } catch (error) {
+      // email duplicates
+      if (error.code === 11000) {
+        throw new ConflictException('Duplicate Email Entered');
+      }
+    }
   }
 
   async login(loginDto: LoginAuthDto) {
