@@ -63,7 +63,9 @@ describe('AuthService', () => {
 
       const result = await authService.signUp(signUpDto);
 
+      // expect function called but not use parameter
       expect(bcrypt.hash).toHaveBeenCalled();
+      // expect result same as actual response
       expect(result).toEqual({
         statusCode: 201,
         data: mockUser,
@@ -72,11 +74,12 @@ describe('AuthService', () => {
     });
 
     it('should throw duplicated email exception', async () => {
-      // watch mock all dependecies
+      // watch mock create model dependecies
       jest
         .spyOn(model, 'create')
         .mockImplementationOnce(() => Promise.reject({ code: 11000 }));
 
+      // expeted result throw conflict exception
       await expect(authService.signUp(signUpDto)).rejects.toThrow(
         ConflictException,
       );
@@ -90,12 +93,14 @@ describe('AuthService', () => {
     };
 
     it('should login user and return the token data', async () => {
+      // watch all mock dependencies
       jest.spyOn(model, 'findOne').mockResolvedValueOnce(mockUser);
       jest.spyOn(bcrypt, 'compare').mockResolvedValueOnce(true);
       jest.spyOn(jwtService, 'sign').mockReturnValue(token);
 
       const result = await authService.login(loginDto);
 
+      // expect result same as actual response
       expect(result).toEqual({
         statuCode: 200,
         data: { token },
@@ -104,17 +109,21 @@ describe('AuthService', () => {
     });
 
     it('should return unauthorized where email invalid', async () => {
+      // watch dependcies when return was null
       jest.spyOn(model, 'findOne').mockResolvedValueOnce(null);
 
+      // expected result was throw unauthorized
       await expect(authService.login(loginDto)).rejects.toThrow(
         UnauthorizedException,
       );
     });
 
     it('should return unauthorized where password invalid', async () => {
+      // watch findOne and compare mock dependencies
       jest.spyOn(model, 'findOne').mockResolvedValueOnce(mockUser);
       jest.spyOn(bcrypt, 'compare').mockResolvedValueOnce(false);
 
+      // expected result was throw unauthorized
       await expect(authService.login(loginDto)).rejects.toThrow(
         UnauthorizedException,
       );

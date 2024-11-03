@@ -72,10 +72,11 @@ describe('BookService', () => {
     it('should return array of books', async () => {
       const query = { page: '1', keyword: 'test' };
 
-      // chaining model find method
+      // watching mock model find method
       jest.spyOn(model, 'find').mockImplementation(
         () =>
           ({
+            // chainging query method
             limit: () => ({
               // return array of mockbook
               skip: jest.fn().mockResolvedValue([mockBook]),
@@ -85,14 +86,14 @@ describe('BookService', () => {
 
       const result = await bookService.findAll(query);
 
-      // expect find method must be use regex and options query
+      // expect find method must be use parameter regex and options query
       expect(model.find).toHaveBeenCalledWith({
         title: {
           $regex: 'test',
           $options: 'i',
         },
       });
-      // expected result must be array
+      // expected result must be array of mockBook
       expect(result).toEqual([mockBook]);
     });
   });
@@ -104,7 +105,7 @@ describe('BookService', () => {
 
       const result = await bookService.findOne(mockBook._id);
 
-      // Expect findById to be called with the correct ID
+      // Expect findById to be called with parameter the correct ID
       expect(model.findById).toHaveBeenCalledWith(mockBook._id);
       // Expect the result to match mockBook
       expect(result).toEqual(mockBook);
@@ -124,7 +125,7 @@ describe('BookService', () => {
         BadRequestException,
       );
 
-      // expect isValidObject must be return id
+      // expect isValidObject function must be use parameter id
       expect(isValidObjectIDMock).toHaveBeenCalledWith(id);
       isValidObjectIDMock.mockRestore();
     });
@@ -138,7 +139,7 @@ describe('BookService', () => {
         NotFoundException,
       );
 
-      // expected findbyid method must be called parameter id
+      // expected findbyid method must be called with parameter id
       expect(model.findById).toHaveBeenCalledWith(mockBook._id);
     });
   });
@@ -154,7 +155,7 @@ describe('BookService', () => {
         category: Category.CLASSIC,
       };
 
-      // watch create model method and must have mockBook type
+      // watch create model method and must have promise mockBook type
       jest
         .spyOn(model, 'create')
         .mockImplementationOnce(() => Promise.resolve(mockBook as any));
@@ -166,6 +167,7 @@ describe('BookService', () => {
 
       // Check if cacheManager.del was called to delete cache
       // expect(cacheService.del).toHaveBeenCalledWith('getBooks');
+
       // expected result must be same of mockBook
       expect(result).toEqual(mockBook);
     });
@@ -189,7 +191,7 @@ describe('BookService', () => {
       // Check if cacheManager.del was called to delete cache
       // expect(cacheService.del).toHaveBeenCalledWith('getBooks');
 
-      // expect findbyidandupdate include id, book, and query
+      // expect findbyidandupdate include parameter id, book, and query
       expect(model.findByIdAndUpdate).toHaveBeenCalledWith(mockBook._id, book, {
         new: true,
         runValidators: true,
